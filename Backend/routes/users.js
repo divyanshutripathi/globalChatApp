@@ -20,15 +20,18 @@ router.get("/", function (req, res, next) {
 });
 
 router.post("/addUser", async (req, res) => {
-  console.log(req.body);
-  if (!req.body.username || !req.body.email || !req.body.password) {
+  if (
+    !req.body.user.username ||
+    !req.body.user.email ||
+    !req.body.user.password
+  ) {
     res.json({
       success: false,
       msg: "Insufficient data!",
     });
   } else {
     try {
-      const existingEmail = await USER.getbyEmail(req.body.email);
+      const existingEmail = await USER.getbyEmail(req.body.user.email);
       if (existingEmail) {
         res.json({
           success: false,
@@ -36,12 +39,11 @@ router.post("/addUser", async (req, res) => {
         });
       } else {
         userDetails = {
-          username: req.body.username,
-          email: req.body.email,
-          password: req.body.password,
+          username: req.body.user.username,
+          email: req.body.user.email,
+          password: req.body.user.password,
         };
         await USER.addUser(userDetails);
-        console.log("after saving");
         res.json({
           success: true,
           msg: "user added successfully",
@@ -54,14 +56,13 @@ router.post("/addUser", async (req, res) => {
 });
 
 router.post("/login", (req, res) => {
-  console.log(req.body);
-  if (!req.body.email || !req.body.password) {
+  if (!req.body.user.email || !req.body.user.password) {
     res.json({
       success: false,
       msg: "Insufficient Data",
     });
   } else {
-    USER.getbyEmail(req.body.email, (err, resUser) => {
+    USER.getbyEmail(req.body.user.email, (err, resUser) => {
       if (err) {
         res.json({
           success: false,
@@ -74,8 +75,7 @@ router.post("/login", (req, res) => {
             msg: "user does not exist",
           });
         } else {
-          if (resUser.password == req.body.password) {
-            console.log("successfull", resUser);
+          if (resUser.password == req.body.user.password) {
             res.json({
               success: true,
               msg: "login successfull",
